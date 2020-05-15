@@ -1,3 +1,12 @@
+################################################################################
+## COPYRIGHT 2020 Ventilators In Peoria (VIP), Caterpillar Inc., Chris Gerth
+## See license.txt in for more info
+##
+## THE SOFTWARE IS PROVIDED "AS IS". IT IS NOT FIT FOR ANY PARTICULAR PURPOSE,
+## CONFORMS TO NO REGULATORY BODY REQUIREMENTS, AND IS GENERALLY NOT SAFE
+## FOR ANY APPLICATION INVOLVING HUMAN LIFE. USE AT YOUR OWN RISK.
+################################################################################
+
 import os, sys
 import serial
 import time
