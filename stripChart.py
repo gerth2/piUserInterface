@@ -1,3 +1,13 @@
+################################################################################
+## COPYRIGHT 2020 Ventilators In Peoria (VIP)
+## See license.txt in for more info
+##
+## THE SOFTWARE IS PROVIDED "AS IS". IT IS NOT FIT FOR ANY PARTICULAR PURPOSE,
+## CONFORMS TO NO REGULATORY BODY REQUIREMENTS, AND IS GENERALLY NOT SAFE
+## FOR ANY APPLICATION INVOLVING HUMAN LIFE. USE AT YOUR OWN RISK.
+################################################################################
+
+
 from tkinter import *
 
 class StripChart:
@@ -36,8 +46,11 @@ class StripChart:
 
     def addNewValue(self, time, value):
         self.valsList.append((time, value))
+        self.displayedValue = value 
+
 
     def update(self, cur_time):
+        self.w.delete("all")
         self.drawChart(cur_time)
         self.drawText()
 
@@ -48,14 +61,15 @@ class StripChart:
             # Need at least two points to draw anything
 
             # Init the "prev" values with the first point in the list
-            prevVal = self.valsList[0][1]
-            prevTime = cur_time - self.valsList[0][0]
+            end = len(self.valsList) - 1
+            prevVal = self.valsList[end][1]
+            prevTime = cur_time - self.valsList[end][0]
 
             self.displayedMax = prevVal
             self.displayedMax = prevVal
 
-            # Iterate over all other points in the list
-            for idx, sample in enumerate(self.valsList[1:]):
+            # Iterate over all other points in the list. We go backward over the list so as to to iterate backward in time, from new to old
+            for idx, sample in enumerate(reversed(self.valsList[1:])):
                 val = sample[1]
                 time = cur_time - sample[0]
                 assert(time >= 0)
@@ -63,7 +77,7 @@ class StripChart:
                     # We hit the end of the points on the chart we want to plot.
                     # "cull" the remaining points to keep RAM usage down.
                     startLen = len(self.valsList)
-                    numRemove = startLen - idx
+                    numRemove = startLen - idx - 1
                     del self.valsList[:numRemove]
                     break
                 else:
@@ -80,7 +94,6 @@ class StripChart:
                         self.displayedMax = val
                     if(val < self.displayedMin):
                         self.displayedMin = val
-                    self.displayedValue = val 
                     
                     prevVal = val
                     prevTime = time
@@ -95,8 +108,10 @@ class StripChart:
     def drawText(self):
         self.w.create_rectangle(self.width * 0.8, 0, self.width, self.height, fill=self.bgColor, outline=self.color, width=4)
         self.w.create_text(self.width * 0.9, self.height * 0.1,  fill = self.color, font=('Arial',15,'bold italic'), text=str(self.title))
-        self.w.create_text(self.width * 0.9, self.height * 0.25, fill = self.color, font=('Arial',30,'bold'), text=str(self.displayedValue))
-        self.w.create_text(self.width * 0.9, self.height * 0.425,fill = self.color, font=('Arial',15,'bold italic'), text=str(self.units))
-        self.w.create_text(self.width * 0.9, self.height * 0.7,  fill = self.color, font=('Arial',10,'bold'), text="Max:" + str(self.displayedMax))
-        self.w.create_text(self.width * 0.9, self.height * 0.8,  fill = self.color, font=('Arial',10,'bold'), text="Min:" + str(self.displayedMin))
+        self.w.create_text(self.width * 0.9, self.height * 0.25, fill = self.color, font=('Arial',25,'bold'), text=self.numToStr(self.displayedValue))
+        self.w.create_text(self.width * 0.9, self.height * 0.425,fill = self.color, font=('Arial',14,'bold italic'), text=str(self.units))
+        self.w.create_text(self.width * 0.9, self.height * 0.7,  fill = self.color, font=('Arial',9,'bold'), text="Max:" + self.numToStr(self.displayedMax))
+        self.w.create_text(self.width * 0.9, self.height * 0.8,  fill = self.color, font=('Arial',9,'bold'), text="Min:" + self.numToStr(self.displayedMin))
 
+    def numToStr(self, number):
+        return "{:.2f}".format(number)
