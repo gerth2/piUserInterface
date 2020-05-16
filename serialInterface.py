@@ -10,9 +10,10 @@
 import os, sys
 import serial
 import time
-import multithreading
+import multiprocessing
 
 LOG_NAME_PREFIX = "./serial_log"
+NUM_EXPECTED_DATA_VALUES = 3
 
 class SerialInterface:
 
@@ -30,21 +31,28 @@ class SerialInterface:
 
         self.ser.isOpen()
 
-
-
     def run(self):
-
         tmp = ""
-
         logName = LOG_NAME_PREFIX + time.strftime("%Y%m%d-%H%M%S") + ".txt"
 
         with open(logName, "w") as fp:
             while 1:
-                time.sleep(0.1)
-                while ser.inWaiting() > 0:
-                    tmp += ser.read(1).decode("utf-8")
+                time.sleep(0.01)
+                line = ser.readline()
+                rxTime = time.time()
+                if line != '':
+                    lineWithTime = "[" + str(rxTime) + "]:" + line
+                    print(lineWithTime)
+                    fp.write(lineWithTime)
+                    self.pipe.send(self.parseData(line, rxTime))
 
-                if tmp != '':
-                    print(tmp)
-                    fp.write(tmp)
+    def parseData(self, serRxString, serRxTime):
+        vals = serRxString.split(',')
+        if(len(vals) != NUM_EXPECTED_DATA_VALUES):
+            print("WARNING malformed data from serial port: " + serRxString)
+        return [str(serRxTime)] + vals
+
+    def __del__(self):
+        self.ser.close()
+        self.pipe.close()
                     

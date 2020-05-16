@@ -1,2 +1,2 @@
-python gui.py
+python piUserInterface.py
 pause
