@@ -28,10 +28,20 @@ class MainGUI(tk.Tk):
         self.serInfProc = multiprocessing.Process(target=self.serInf.run)
 
     def initGuiObjects(self):
-        self.chartTest1 = StripChart(self, "Test 1", "kPa",   750, 100, "yellow",  5.0,   0, 1024)
-        self.chartTest2 = StripChart(self, "Test 2", "bpm",   750, 100, "cyan",    5.0,   0, 1024)
-        self.chartTest3 = StripChart(self, "Test 3", "count", 750, 100, "magenta", 5.0,   0, 1024)
+        screen_width  = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        self.chartTest1 = StripChart(self, "Test 1", "kPa",   screen_width, screen_height/4, "yellow",  5.0,   0, 1024)
+        self.chartTest2 = StripChart(self, "Test 2", "bpm",   screen_width, screen_height/4, "cyan",    5.0,   0, 1024)
+        self.chartTest3 = StripChart(self, "Test 3", "count", screen_width, screen_height/4, "magenta", 5.0,   0, 1024)
+        
+        self.bind("<Escape>", self.escapeKeyHandler)
+        
         self.serInfProc.start()
+        
+    def shutDownSerialInf(self):
+        self.pipeGuiCon.send("END")
+        self.serInfProc.join()
 
 
     def guiPeriodicUpdate(self):
@@ -56,12 +66,35 @@ class MainGUI(tk.Tk):
         self.chartTest3.update(curTime)
 
         self.after(GUI_PEIRODIC_RATE_MS, self.guiPeriodicUpdate)
+    
+    def escapeKeyHandler(self, event):
+        self.destroy()
 
 
 
 if __name__ == "__main__": 
+
+    # Create the base GUI object
     master = MainGUI()
+    
+    # Make things go fullscreen
+    master.attributes("-fullscreen", True)
+    
+    print("Init Serial Interface...")
     master.initSerialInterface()
+    
+    print("Init GUI...")
     master.initGuiObjects()
+    
+    print("Bootstrapping peiorid update...")
     master.guiPeriodicUpdate()
+    
+    print("Init done!")
+    
+    print("Starting main GUI application.")
     master.mainloop()
+    
+    print("Starting Shutdown sequence")
+    master.shutDownSerialInf()
+    
+    print("All shut down, goodbye!")

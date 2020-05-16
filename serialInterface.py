@@ -20,6 +20,8 @@ class SerialInterface:
     def __init__(self, pipe):
 
         self.pipe = pipe
+        
+        self.closeCommandCounter = 0
 
         self.ser = serial.Serial(
             port='/dev/ttyACM0',
@@ -36,7 +38,7 @@ class SerialInterface:
         logName = LOG_NAME_PREFIX + time.strftime("%Y%m%d-%H%M%S") + ".txt"
 
         with open(logName, "w") as fp:
-            while 1:
+            while(self.closeRequested() is False):
                 
                 rxBytes = self.ser.readline()
                 rxTime = time.time()
@@ -55,6 +57,10 @@ class SerialInterface:
                     vals = self.parseData(line, rxTime)
                     if(vals is not None):
                         self.pipe.send(vals)
+        
+        # We're all done, shut everything done
+        self.ser.close()
+        self.pipe.close()
 
     def parseData(self, serRxString, serRxTime):
         try:
@@ -68,8 +74,22 @@ class SerialInterface:
         except Exception as e:
             print("Warning: serial data parse exception: "+ str(e))
             return None
+            
+            
+    def closeRequested(self):
+        self.closeCommandCounter += 1
+        if(self.closeCommandCounter % 100 == 0):
+            if(self.pipe.poll() > 0):
+                rxCmd = self.pipe.recv()
+                if("END" in rxCmd):
+                    print("Serial interface process exiting")
+                    return True
+                else:
+                    return False
+            else:
+                return False
+            
+        else:
+            return False
 
-    def __del__(self):
-        self.ser.close()
-        self.pipe.close()
                     
