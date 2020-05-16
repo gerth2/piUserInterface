@@ -1,0 +1,17 @@
+[Unit]
+Description=VIP User Interface
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+ExecStart=/home/pi/piUserInterface/run.sh
+WorkingDirectory=/home/pi/piUserInterface
+StandardOutput=inherit
+StandardError=inherit
+Restart=on-failure
+RestartSec=5s
+User=pi
+Group=pi
+
+[Install]
+WantedBy=graphical.target
