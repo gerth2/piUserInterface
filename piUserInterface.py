@@ -20,8 +20,7 @@ GUI_PEIRODIC_RATE_MS = 50
 
 class MainGUI(tk.Tk):
 
-    def __init__(self):
-
+    def initSerialInterface(self):
         # creating a pipe 
         self.pipeSerialInfConn, self.pipeGuiCon = multiprocessing.Pipe(duplex=True) 
     
@@ -29,9 +28,9 @@ class MainGUI(tk.Tk):
         self.serInfProc = multiprocessing.Process(target=self.serInf.run)
 
     def initGuiObjects(self):
-        self.chartTest1 = StripChart(self, "Test 1", "kPa", 600, 150,   "yellow", 10.0, 0, 6)
-        self.chartTest2 = StripChart(self, "Test 2", "bpm", 600, 150,   "cyan", 10.0, 0, 6)
-        self.chartTest3 = StripChart(self, "Test 3", "count", 600, 150, "magenta", 10.0, -20, 20)
+        self.chartTest1 = StripChart(self, "Test 1", "kPa",   750, 100, "yellow",  5.0,   0, 1024)
+        self.chartTest2 = StripChart(self, "Test 2", "bpm",   750, 100, "cyan",    5.0,   0, 1024)
+        self.chartTest3 = StripChart(self, "Test 3", "count", 750, 100, "magenta", 5.0,   0, 1024)
         self.serInfProc.start()
 
 
@@ -42,9 +41,9 @@ class MainGUI(tk.Tk):
             # Serial reader process had sent (or is in the process of sending)
             #  a packet of serial data
             serRxData = self.pipeGuiCon.recv()
-            self.chartTest1.addNewValue(serRxData(0), serRxData(1))
-            self.chartTest2.addNewValue(serRxData(0), serRxData(2))
-            self.chartTest3.addNewValue(serRxData(0), serRxData(3))
+            self.chartTest1.addNewValue(serRxData[0], serRxData[1])
+            self.chartTest2.addNewValue(serRxData[0], serRxData[2])
+            self.chartTest3.addNewValue(serRxData[0], serRxData[3])
 
         
         #Sample Time Vectors
@@ -62,6 +61,7 @@ class MainGUI(tk.Tk):
 
 if __name__ == "__main__": 
     master = MainGUI()
+    master.initSerialInterface()
     master.initGuiObjects()
     master.guiPeriodicUpdate()
     master.mainloop()

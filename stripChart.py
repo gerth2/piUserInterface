@@ -23,6 +23,8 @@ class StripChart:
         self.bgColor = "#111111"
         self.title = title
         self.units = units
+        self.decimationFactor = 17
+        self.decimationCounter = 0
 
         assert(self.maxVal > self.minVal)
         assert(self.timeDur > 0)
@@ -32,6 +34,12 @@ class StripChart:
         self.displayedValue = 0
         self.displayedMin = 0
         self.displayedMax = 0
+        
+        # GUI Objects
+        self.guiRefCurVal = None
+        self.guiRefMaxVal = None
+        self.guiRefMinVal = None
+        self.guiRefLinSegList = []
 
         # Calculated Constants
         self.PIXEL_ORIGIN_X = self.width * 0.75
@@ -42,20 +50,29 @@ class StripChart:
         # Init the canvas and draw initial content
         self.w = Canvas(master, width=self.width, height=self.height, borderwidth=0, highlightthickness=0)
         self.w.pack()
-        self.update(0)
-
+        self.initText()
+        self.initChart()
+        
     def addNewValue(self, time, value):
-        self.valsList.append((time, value))
+        #Only pack plotted values at the decimation rate
+        # Plot samples at the decimation factor rate
+        if(self.decimationCounter % self.decimationFactor == 0):
+            self.valsList.append((time, value))
+            
+        self.decimationCounter += 1
+
         self.displayedValue = value 
 
-
     def update(self, cur_time):
-        self.w.delete("all")
-        self.drawChart(cur_time)
-        self.drawText()
-
-    def drawChart(self, cur_time):
+        self.updateChart(cur_time)
+        self.updateText()
+        
+    def initChart(self):
         self.w.create_rectangle(0, 0, self.width * 0.8, self.height, fill=self.bgColor, outline=self.color, width=4)
+
+    def updateChart(self, cur_time):
+        
+        lineSegIdx = 0;
 
         if(len(self.valsList) > 1):
             # Need at least two points to draw anything
@@ -70,9 +87,9 @@ class StripChart:
 
             # Iterate over all other points in the list. We go backward over the list so as to to iterate backward in time, from new to old
             for idx, sample in enumerate(reversed(self.valsList[1:])):
+                
                 val = sample[1]
                 time = cur_time - sample[0]
-                assert(time >= 0)
                 if(time > self.timeDur):
                     # We hit the end of the points on the chart we want to plot.
                     # "cull" the remaining points to keep RAM usage down.
@@ -81,12 +98,22 @@ class StripChart:
                     del self.valsList[:numRemove]
                     break
                 else:
+
                     # Plot this point with a line connecting to the previous value
                     startX = self.toPixelX(prevTime)
                     startY = self.toPixelY(prevVal)
                     endX   = self.toPixelX(time)
                     endY   = self.toPixelY(val)
-                    self.w.create_line(startX, startY, endX, endY, fill=self.color, width=2)
+                    
+                    # Create a new line segement if needed, or update the existing corresponding one.
+                    if(lineSegIdx >= len(self.guiRefLinSegList)):
+                        self.guiRefLinSegList.append(self.w.create_line(startX, startY, endX, endY, fill=self.color, width=2))
+                    else:
+                        self.w.coords(self.guiRefLinSegList[lineSegIdx], startX, startY, endX, endY)
+                        
+                    prevVal = val
+                    prevTime = time
+                    lineSegIdx += 1
 
                     # Basic transform to displayed values
                     # TODO - better formatting
@@ -95,8 +122,6 @@ class StripChart:
                     if(val < self.displayedMin):
                         self.displayedMin = val
                     
-                    prevVal = val
-                    prevTime = time
 
 
     def toPixelY(self, val):
@@ -105,13 +130,22 @@ class StripChart:
     def toPixelX(self, time):
         return self.PIXEL_ORIGIN_X - time * self.PIXELS_PER_UNIT_TIME
 
-    def drawText(self):
+    def initText(self):
+        # Static objects
         self.w.create_rectangle(self.width * 0.8, 0, self.width, self.height, fill=self.bgColor, outline=self.color, width=4)
-        self.w.create_text(self.width * 0.9, self.height * 0.1,  fill = self.color, font=('Arial',15,'bold italic'), text=str(self.title))
-        self.w.create_text(self.width * 0.9, self.height * 0.25, fill = self.color, font=('Arial',25,'bold'), text=self.numToStr(self.displayedValue))
-        self.w.create_text(self.width * 0.9, self.height * 0.425,fill = self.color, font=('Arial',14,'bold italic'), text=str(self.units))
-        self.w.create_text(self.width * 0.9, self.height * 0.7,  fill = self.color, font=('Arial',9,'bold'), text="Max:" + self.numToStr(self.displayedMax))
-        self.w.create_text(self.width * 0.9, self.height * 0.8,  fill = self.color, font=('Arial',9,'bold'), text="Min:" + self.numToStr(self.displayedMin))
+        self.w.create_text(self.width * 0.9, self.height * 0.1,  fill = self.color, font=('Arial',14,'bold italic'), text=str(self.title))
+        self.w.create_text(self.width * 0.9, self.height * 0.500,fill = self.color, font=('Arial',13,'bold italic'), text=str(self.units))
+        
+        # Mutable Objects
+        self.guiRefMaxVal = self.w.create_text(self.width * 0.9, self.height * 0.7,  fill = self.color, font=('Arial',9,'bold'), text="Max:" )
+        self.guiRefMinVal = self.w.create_text(self.width * 0.9, self.height * 0.8,  fill = self.color, font=('Arial',9,'bold'), text="Min:" )
+        self.guiRefCurVal = self.w.create_text(self.width * 0.9, self.height * 0.30, fill = self.color, font=('Arial',22,'bold'), text="")
+
+    def updateText(self):
+        self.w.itemconfig(self.guiRefMaxVal, text="Max:" + self.numToStr(self.displayedMax))
+        self.w.itemconfig(self.guiRefMinVal, text="Min:" + self.numToStr(self.displayedMin))
+        self.w.itemconfig(self.guiRefCurVal, text= self.numToStr(self.displayedValue))
+
 
     def numToStr(self, number):
         return "{:.2f}".format(number)

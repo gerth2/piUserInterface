@@ -37,20 +37,37 @@ class SerialInterface:
 
         with open(logName, "w") as fp:
             while 1:
-                time.sleep(0.01)
-                line = ser.readline()
+                
+                rxBytes = self.ser.readline()
                 rxTime = time.time()
+                
+                try:
+                    line = rxBytes.decode('utf-8')
+                except Exception as e:
+                    print("Warning: error decoding bytes to string:" + str(e))
+                    continue
+                    
+                
                 if line != '':
                     lineWithTime = "[" + str(rxTime) + "]:" + line
-                    print(lineWithTime)
+                    # print(lineWithTime)
                     fp.write(lineWithTime)
-                    self.pipe.send(self.parseData(line, rxTime))
+                    vals = self.parseData(line, rxTime)
+                    if(vals is not None):
+                        self.pipe.send(vals)
 
     def parseData(self, serRxString, serRxTime):
-        vals = serRxString.split(',')
-        if(len(vals) != NUM_EXPECTED_DATA_VALUES):
-            print("WARNING malformed data from serial port: " + serRxString)
-        return [str(serRxTime)] + vals
+        try:
+            vals = serRxString.strip().split(",")
+            if(len(vals) != NUM_EXPECTED_DATA_VALUES):
+                print("WARNING malformed data from serial port: " + serRxString)
+                return None
+            vals.insert(0,str(serRxTime))
+            vals = [float(i) for i in vals]
+            return vals
+        except Exception as e:
+            print("Warning: serial data parse exception: "+ str(e))
+            return None
 
     def __del__(self):
         self.ser.close()
