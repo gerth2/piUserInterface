@@ -1,0 +1,5 @@
+Required Arduino Libraries:
+Adafruit BME280
+Adafruit Unified Sensor
+
+Install via the arduino IDE prior to compiling this code.

@@ -1,9 +1,13 @@
-A simple user interface for an MIT-inspired ventilator design.
+# VIP Pi User Interface
+
+A simple user interface and arduino test code for an MIT-inspired ventilator design.
 
 # WARNING
-THE SOFTWARE IS PROVIDED "AS IS". IT IS NOT FIT FOR ANY PARTICULAR PURPOSE,
-CONFORMS TO NO REGULATORY BODY REQUIREMENTS, AND IS GENERALLY NOT SAFE
-FOR ANY APPLICATION INVOLVING HUMAN LIFE. USE AT YOUR OWN RISK.
+THE SOFTWARE IS PROVIDED "AS IS". 
+
+IT IS NOT FIT FOR ANY PARTICULAR PURPOSE, CONFORMS TO NO REGULATORY BODY REQUIREMENTS, AND IS GENERALLY NOT SAFE FOR ANY APPLICATION INVOLVING LIVING ORGANISMS. 
+
+USE AT YOUR OWN RISK.
 
 # Pi Interface
 
@@ -32,8 +36,6 @@ Contains basic implementation for the following:
 1. Save wdog reset events to EEPROM
 2. Create & integrate infrastructure for logging and reporting system faults
 3. Add pi->arduino communication via touchscreen button presses
-
-
 
 # About Ventilators In Peoria
 
