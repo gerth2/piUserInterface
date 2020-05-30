@@ -46,9 +46,9 @@ class MainGUI(tk.Tk):
         screen_width  = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
 
-        self.chartTest1 = StripChart(self, "Pressure", "kPa", screen_width, screen_height/4, "yellow",  5.0,   0, 1024)
-        self.chartTest2 = StripChart(self, "Insp", "bpm",     screen_width, screen_height/4, "cyan",    5.0,   0, 1024)
-        self.chartTest3 = StripChart(self, "Cycles", "count", screen_width, screen_height/4, "magenta", 5.0,   0, 1024)
+        self.chartTest1 = StripChart(self, "Flow",     "ml/min", screen_width, screen_height/4, "yellow",  5.0, -30000,  30000)
+        self.chartTest2 = StripChart(self, "Temp",     "DegC",   screen_width, screen_height/4, "cyan",    5.0,  15,  35)
+        self.chartTest3 = StripChart(self, "CPU Load", "Pct",    screen_width, screen_height/4, "magenta", 5.0,   0,  100)
         
         self.statusDisplay = StatusDisplay(self, screen_width, screen_height/4)
         self.statusDisplay.setStatusText("Init...")

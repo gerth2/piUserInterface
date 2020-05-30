@@ -23,7 +23,7 @@ class StripChart:
         self.bgColor = "#111111"
         self.title = title
         self.units = units
-        self.decimationFactor = 17
+        self.decimationFactor = 1
         self.decimationCounter = 0
 
         assert(self.maxVal > self.minVal)
