@@ -1,0 +1,5 @@
+https://www.engineeringtoolbox.com/orifice-air-volume-leakage-d_1191.html for flow through an orifice
+
+use simple model of positive voltage shrinks bag volume, negative voltage expands it
+
+assume PV=NRT on the ambibag itself, flow through orifice as above to calculate change in N every loop based on pressure delta
