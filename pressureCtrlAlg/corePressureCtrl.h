@@ -15,14 +15,20 @@
 
 // Mechanical Constants
 #define ENC_TO_MOTOR_GEAR_RATIO 1.0    // Ratio to convert encoder rotations to motor rotations
-#define ARM_TO_MOTOR_GEAR_RATIO 1.0    // Ratio to convert arm rotations to motor rotations
+#define ARM_TO_MOTOR_GEAR_RATIO (192.0/1.0) * (48/30.0)  // Ratio to convert arm rotations to motor rotations
 #define PADDLE_LEVER_ARM_LENGTH_M = 0.45 // Lever-arm Distance from paddle contact point to arm rotational axis
 
 //Electrical Constants
 #define MOTOR_SUPPLY_VOLTAGE_V 12.0 // supply voltage to motor
-#define MOTOR_kV 0.1  // Ratio of motor velocity (in radians/sec) to back EMF (in volts)
-#define MOTOR_kT 0.1  // Ratio of motor current (in A) to motor shaft torque (in N/M)
-#define MOTOR_R  0.01 // Motor winding resistance (in ohms)
+// See andymark.com/products/12-volt-dc-192-1-reduction-gearmotor-with-0-5-in-hex-output?sku=am-4252
+#define MOTOR_STALL_TORQUE_NM 40.67
+#define MOTOR_STALL_CURRENT_A 11.0
+#define MOTOR_NOLOAD_SPEED_RADpS 603.19
+#define MOTOR_NOLOAD_CURRENT_A 2.0
+// Derived electrical constants
+#define MOTOR_R  MOTOR_SUPPLY_VOLTAGE_V/MOTOR_STALL_CURRENT_A // Motor winding resistance (in ohms). Stall Conditions: 
+#define MOTOR_kV (MOTOR_SUPPLY_VOLTAGE_V - MOTOR_NOLOAD_CURRENT_A*MOTOR_R)/MOTOR_NOLOAD_SPEED_RADpS  // Ratio to convert motor velocity into back-EMF
+#define MOTOR_kT MOTOR_STALL_TORQUE_NM/MOTOR_STALL_CURRENT_A // Ratio to convert motor current into motor torque
 
 //Pressure/Force Transforms for AmbiBag
 const double pressureToArmForceMap[4][2] = 
