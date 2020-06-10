@@ -1,4 +1,5 @@
 #include "lookup2d.h"
+#include "pidController.h"
 
 
 // Closed-loop Controller Tuning Constants
@@ -15,8 +16,8 @@
 
 // Mechanical Constants
 #define ENC_TO_MOTOR_GEAR_RATIO 1.0    // Ratio to convert encoder rotations to motor rotations
-#define ARM_TO_MOTOR_GEAR_RATIO (192.0/1.0) * (48/30.0)  // Ratio to convert arm rotations to motor rotations
-#define PADDLE_LEVER_ARM_LENGTH_M = 0.45 // Lever-arm Distance from paddle contact point to arm rotational axis
+#define ARM_TO_MOTOR_GEAR_RATIO (192.0/1.0) * (48.0/30.0)  // Ratio to convert arm rotations to motor rotations
+#define PADDLE_LEVER_ARM_LENGTH_M 0.45 // Lever-arm Distance from paddle contact point to arm rotational axis
 
 //Electrical Constants
 #define MOTOR_SUPPLY_VOLTAGE_V 12.0 // supply voltage to motor
@@ -63,6 +64,7 @@ class CorePressureCtrl {
 
 
     Lookup2D * pressureToArmForceLUT;
+    PIDController * forcePIDController;
 
   public:
 

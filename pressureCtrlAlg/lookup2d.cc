@@ -28,7 +28,7 @@ double Lookup2D::interpolate(double input){
             double y2 = getTableYVal(idx);
 
             if(input >= x1 && input <= x2){
-                return y1 + (input - x2) * (y2-y1)/(x2-x1);
+                return y1 + (input - x1) * (y2-y1)/(x2-x1);
             }
         }
     }

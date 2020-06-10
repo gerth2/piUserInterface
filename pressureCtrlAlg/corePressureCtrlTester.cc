@@ -18,10 +18,18 @@ int main()
   for (int i = 0; i < n; ++i)
   {
     time.at(i) = i * SIM_TS;
+
+    //Calculate inputs
+    ctrlUnderTest.setActualPressure(0);
+    ctrlUnderTest.setDesiredPressure(0);
+    ctrlUnderTest.setEncoderPosition(0);
+
     ctrlUnderTest.update();
     motorPWM.at(i) = ctrlUnderTest.getCtrlEffortCmd();
+
+    std::cout << motorPWM.at(i);
+    std::cout << "\n";
   }
 
-  std::cout << "Test Content";
   return 0;
 }

@@ -1,6 +1,4 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
@@ -8,9 +6,9 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-              },
+            },
             "type": "shell",
-            "command": "$env:Path += \\\";C:/minGW/bin\\\" ; g++.exe lookup2d.cc corePressureCtrl.cc corePressureCtrlTester.cc -o corePressureCtrlTester.exe; ./corePressureCtrlTester.exe",
+            "command": "$env:Path += \\\";C:/minGW/bin\\\" ; g++.exe -g lookup2d.cc pidController.cc corePressureCtrl.cc corePressureCtrlTester.cc -o corePressureCtrlTester.exe",
             "problemMatcher": [
                 "$gcc"
             ]
