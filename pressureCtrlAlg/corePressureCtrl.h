@@ -15,16 +15,17 @@
 #define Ts 0.1 //Sample Time (in seconds)
 
 // Mechanical Constants
+#define GEARBOX_GEAR_RATIO (192.0/1.0)
 #define ENC_TO_MOTOR_GEAR_RATIO 1.0    // Ratio to convert encoder rotations to motor rotations
-#define ARM_TO_MOTOR_GEAR_RATIO (192.0/1.0) * (48.0/30.0)  // Ratio to convert arm rotations to motor rotations
+#define ARM_TO_MOTOR_GEAR_RATIO GEARBOX_GEAR_RATIO * (48.0/30.0)  // Ratio to convert arm rotations to motor rotations
 #define PADDLE_LEVER_ARM_LENGTH_M 0.45 // Lever-arm Distance from paddle contact point to arm rotational axis
 
 //Electrical Constants
 #define MOTOR_SUPPLY_VOLTAGE_V 12.0 // supply voltage to motor
 // See andymark.com/products/12-volt-dc-192-1-reduction-gearmotor-with-0-5-in-hex-output?sku=am-4252
-#define MOTOR_STALL_TORQUE_NM 40.67
+#define MOTOR_STALL_TORQUE_NM (40.67 / GEARBOX_GEAR_RATIO)
 #define MOTOR_STALL_CURRENT_A 11.0
-#define MOTOR_NOLOAD_SPEED_RADpS 603.19
+#define MOTOR_NOLOAD_SPEED_RADpS 3.14159 * GEARBOX_GEAR_RATIO
 #define MOTOR_NOLOAD_CURRENT_A 2.0
 // Derived electrical constants
 #define MOTOR_R  MOTOR_SUPPLY_VOLTAGE_V/MOTOR_STALL_CURRENT_A // Motor winding resistance (in ohms). Stall Conditions: 
@@ -37,9 +38,9 @@ const double pressureToArmForceMap[4][2] =
 // |     +-- Bag applied Force (N)
 // |     |
 { {0,    0},
-  {500,  0.25},
-  {1000, 0.5 },
-  {2000, 1.0 }, 
+  {500,  50},
+  {1000, 100 },
+  {2000, 150 }, 
 };
 
 class CorePressureCtrl {
@@ -55,7 +56,7 @@ class CorePressureCtrl {
     double encVel_radPerSec = 0;
     double motorVel_radPerSec = 0;
     double motorBackEMF_V = 0;
-    double desArmForce_Nm = 0;
+    double desArmForce_N = 0;
     double desMotorTorque_Nm = 0;
     double desMotorCurrent_A = 0;
     double armForceError_Nm = 0;
