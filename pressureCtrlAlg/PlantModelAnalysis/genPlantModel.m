@@ -1,7 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Constants
 MOTOR_SUPPLY_VOLTAGE_V = 12.0;
-ATMOSPHERIC_PRESSURE_MB = 1013.25;
+%ATMOSPHERIC_PRESSURE_MB = 1013.25;
+ATMOSPHERIC_PRESSURE_MB = 0;
 
 CAM_GEAR_RATIO = 30.0/48.0;
 ENC_TICKS_PER_REV = 28;
@@ -27,19 +28,20 @@ PRESSURE_OFFSET_SAMPLES = 7;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in the data file
-rawData = csvread('newMotorData.csv');
+rawData = csvread('data_june30.csv');
 
 % Separate raw CSV by the actual data components
 % These were defined by the arduino code that generated the file
-maxSample = 15000;
+maxSample = 4500;
 time_sec     = rawData(1:maxSample,1).*(1/1000);
 flow_smLpM   = rawData(1:maxSample,2);
-press_mb     = rawData(1:maxSample,3);
+press_mb     = rawData(1:maxSample,3).*(0.98/1000);
 cpuLoad      = rawData(1:maxSample,4);
 encPos_raw   = rawData(1:maxSample,5);
 temp_degC    = rawData(1:maxSample,6);
 motorCmd_dir = rawData(1:maxSample,7); % 0 for fwd, 1 for rev
 motorCmd_pwm = rawData(1:maxSample,8);
+measCurrent_raw = rawData(1:maxSample,9);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Derived data
@@ -48,8 +50,9 @@ dEncPos_raw = diff(encPos_raw);
 encVel_rawPSec = cat(1, dEncPos_raw./dt, [0]);
 encVel_filt_rawPSec = filter([1,1,1,1,1], [5 0 0], encVel_rawPSec);
 
-press_mb_offset = circshift(press_mb, -PRESSURE_OFFSET_SAMPLES);
-press_filt_mb       = filter([1,1,1,1,1], [5 0 0], press_mb_offset .- ATMOSPHERIC_PRESSURE_MB);
+measCurrent_A = filter([1,1,1,1,1], [5 0 0], measCurrent_raw*10.0/1024);
+
+press_filt_mb       = filter([1,1,1,1,1], [5 0 0], press_mb .- ATMOSPHERIC_PRESSURE_MB);
 
 flow_filt_smLpM     = filter([1,1,1,1,1], [5 0 0], flow_smLpM);
 
@@ -93,6 +96,9 @@ hold on;
 scatter(press_filt_masked_mb, arm_force_masked_N);
 line(pressure_mb_breakpoints, arm_force_N_breakpoints, 'LineWidth',5);
 hold off;
+
+figure;
+plot(time_sec, measCurrent_A, time_sec, motorCurrent_A);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Basic IO Boundary:
